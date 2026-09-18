@@ -79,6 +79,9 @@
 
   .panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 12px; margin-bottom: 20px; }
   .panel h2 { font-size: 15px; margin: 0 0 12px; }
+  .rank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .rank-sub-title { font-size: 13px; color: var(--text-secondary); margin: 0 0 8px; font-weight: 500; }
+  @media (max-width: 700px) { .rank-grid { grid-template-columns: 1fr; } }
   .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary); }
   .legend-item { display: inline-flex; align-items: center; gap: 6px; }
   .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
@@ -143,7 +146,7 @@
       <h1>PBX 通话看板</h1>
       <div class="subtitle">Hilong Seafood International Inc · 数据来源: Seawolf Hosted PBX 通话记录</div>
     </div>
-    <div class="meta">数据更新至 2026-09-18 02:54</div>
+    <div class="meta">数据更新至 2026-09-18 03:30</div>
   </header>
 
   <div class="toolbar">
@@ -174,8 +177,17 @@
   </div>
 
   <div class="panel">
-    <h2>坐席排行 · 按接通电话数(呼出接通 + 呼入接听)</h2>
-    <div id="rankChart"></div>
+    <h2>坐席排行</h2>
+    <div class="rank-grid">
+      <div>
+        <h3 class="rank-sub-title">呼出接通</h3>
+        <div id="rankChartOut"></div>
+      </div>
+      <div>
+        <h3 class="rank-sub-title">呼入接听</h3>
+        <div id="rankChartIn"></div>
+      </div>
+    </div>
   </div>
 
   <div class="panel">
@@ -200,7 +212,7 @@
     </div>
   </div>
 
-  <footer class="foot">由本地脚本从 PBX 网页抓取生成,仅供内部查看 · 生成时间 2026-09-18 02:54</footer>
+  <footer class="foot">由本地脚本从 PBX 网页抓取生成,仅供内部查看 · 生成时间 2026-09-18 03:30</footer>
 </div>
 <div id="tooltip"></div>
 
@@ -392,22 +404,23 @@ function renderDailyChart(dayRows) {
   });
 }
 
-function renderRankChart(extRows) {
-  const container = document.getElementById('rankChart');
-  const rows = [...extRows].sort((a,b) => b.total_answered - a.total_answered).slice(0, 10).filter(r => r.total_answered > 0 || r.out > 0 || r.in > 0);
+function renderRankChartInto(containerId, extRows, metricKey) {
+  const container = document.getElementById(containerId);
+  const rows = [...extRows].sort((a,b) => b[metricKey] - a[metricKey]).slice(0, 10).filter(r => r[metricKey] > 0);
   if (rows.length === 0) { container.innerHTML = '<div class="empty-note">该时间段暂无数据</div>'; return; }
-  const W = 640, rowH = 28, padT = 8, padB = 8, padL = 130, padR = 46;
+  const W = 320, rowH = 28, padT = 8, padB = 8, padL = 110, padR = 36;
   const H = rowH*rows.length + padT + padB;
-  const maxVal = Math.max(1, ...rows.map(r => r.total_answered));
+  const maxVal = Math.max(1, ...rows.map(r => r[metricKey]));
   const plotW = W - padL - padR;
   let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px">`;
   rows.forEach((r, i) => {
     const y = padT + i*rowH;
-    const w = (r.total_answered/maxVal) * plotW;
+    const val = r[metricKey];
+    const w = (val/maxVal) * plotW;
     svg += `<text class="rank-label" data-idx="${i}" x="${padL-8}" y="${y+rowH/2+4}" text-anchor="end">${r.label}</text>`;
     svg += `<rect class="bar-hit" x="${padL}" y="${y+2}" width="${plotW}" height="${rowH-6}" data-idx="${i}"/>`;
     svg += `<rect class="bar" x="${padL}" y="${y+4}" width="${Math.max(2,w)}" height="${rowH-10}" rx="4" fill="var(--seq-400)" data-idx="${i}"/>`;
-    svg += `<text x="${padL+w+8}" y="${y+rowH/2+4}">${r.total_answered}</text>`;
+    svg += `<text x="${padL+w+8}" y="${y+rowH/2+4}">${val}</text>`;
   });
   svg += `</svg>`;
   container.innerHTML = svg;
@@ -422,6 +435,11 @@ function renderRankChart(extRows) {
   container.querySelectorAll('.rank-label').forEach(el => {
     el.addEventListener('click', () => openCallDetail(rows[+el.dataset.idx].ext));
   });
+}
+
+function renderRankChart(extRows) {
+  renderRankChartInto('rankChartOut', extRows, 'out_ans');
+  renderRankChartInto('rankChartIn', extRows, 'in_ans');
 }
 
 let sortKey = 'in_ans', sortDir = -1;
