@@ -64,6 +64,12 @@
     font-size: 13px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--surface-1); color: var(--text-primary); min-width: 200px;
   }
+  .custom-range { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+  .custom-range input[type="date"] {
+    font-size: 13px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-primary);
+  }
+  .custom-range .apply-btn { background: var(--series-1); color: #fff; }
 
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
   .kpi-tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
@@ -110,7 +116,7 @@
       <h1>PBX 通话看板</h1>
       <div class="subtitle">Hilong Seafood International Inc · 数据来源: Seawolf Hosted PBX 通话记录</div>
     </div>
-    <div class="meta">数据更新至 2026-09-17 06:16</div>
+    <div class="meta">数据更新至 2026-09-18 02:22</div>
   </header>
 
   <div class="toolbar">
@@ -119,6 +125,11 @@
       <button class="range-btn" data-range="7">近7天</button>
       <button class="range-btn active" data-range="30">近30天</button>
       <button class="range-btn" data-range="all">全部</button>
+      <button class="range-btn" data-range="custom">自定义</button>
+    </div>
+    <div class="custom-range" id="customRangePanel" hidden>
+      <input type="date" id="customStart"> ~ <input type="date" id="customEnd">
+      <button class="range-btn apply-btn" id="applyCustomRange">应用</button>
     </div>
     <div class="search-box"><input id="searchInput" type="text" placeholder="按分机号 / 姓名筛选..."></div>
   </div>
@@ -162,13 +173,13 @@
     </div>
   </div>
 
-  <footer class="foot">由本地脚本从 PBX 网页抓取生成,仅供内部查看 · 生成时间 2026-09-17 06:16</footer>
+  <footer class="foot">由本地脚本从 PBX 网页抓取生成,仅供内部查看 · 生成时间 2026-09-18 02:22</footer>
 </div>
 <div id="tooltip"></div>
 
 <script>
 const DAILY = [{"date": "2026-09-09", "ext": "AJHY223", "out": 5, "out_ans": 5, "out_dur": 491, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-09", "ext": "AJHY224", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 30}, {"date": "2026-09-09", "ext": "AJHY304", "out": 1, "out_ans": 1, "out_dur": 263, "in": 3, "in_ans": 3, "in_dur": 380}, {"date": "2026-09-09", "ext": "AJHY306", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 92}, {"date": "2026-09-09", "ext": "AJHY308", "out": 2, "out_ans": 2, "out_dur": 540, "in": 1, "in_ans": 1, "in_dur": 416}, {"date": "2026-09-09", "ext": "AJHY317", "out": 3, "out_ans": 3, "out_dur": 318, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-09", "ext": "AJHY318", "out": 3, "out_ans": 3, "out_dur": 153, "in": 2, "in_ans": 2, "in_dur": 178}, {"date": "2026-09-09", "ext": "AJHY501", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 106}, {"date": "2026-09-09", "ext": "AJHY516", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 334}, {"date": "2026-09-09", "ext": "AJHY518", "out": 1, "out_ans": 1, "out_dur": 35, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-09", "ext": "AJHY520", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 88}, {"date": "2026-09-10", "ext": "AJHY201", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 152}, {"date": "2026-09-10", "ext": "AJHY223", "out": 1, "out_ans": 1, "out_dur": 15, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-10", "ext": "AJHY304", "out": 2, "out_ans": 2, "out_dur": 124, "in": 1, "in_ans": 1, "in_dur": 190}, {"date": "2026-09-10", "ext": "AJHY305", "out": 1, "out_ans": 1, "out_dur": 518, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-10", "ext": "AJHY308", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 348}, {"date": "2026-09-10", "ext": "AJHY317", "out": 2, "out_ans": 2, "out_dur": 47, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-10", "ext": "AJHY318", "out": 1, "out_ans": 1, "out_dur": 58, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-10", "ext": "AJHY319", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 224}, {"date": "2026-09-10", "ext": "AJHY501", "out": 2, "out_ans": 2, "out_dur": 26, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-10", "ext": "AJHY512", "out": 6, "out_ans": 6, "out_dur": 755, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-10", "ext": "AJHY517", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 18}, {"date": "2026-09-10", "ext": "AJHY520", "out": 6, "out_ans": 6, "out_dur": 626, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-10", "ext": "AJHY522", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 16}, {"date": "2026-09-11", "ext": "AJHY201", "out": 0, "out_ans": 0, "out_dur": 0, "in": 2, "in_ans": 2, "in_dur": 252}, {"date": "2026-09-11", "ext": "AJHY223", "out": 5, "out_ans": 5, "out_dur": 534, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-11", "ext": "AJHY304", "out": 0, "out_ans": 0, "out_dur": 0, "in": 2, "in_ans": 2, "in_dur": 82}, {"date": "2026-09-11", "ext": "AJHY305", "out": 2, "out_ans": 2, "out_dur": 219, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-11", "ext": "AJHY306", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 113}, {"date": "2026-09-11", "ext": "AJHY308", "out": 1, "out_ans": 1, "out_dur": 81, "in": 1, "in_ans": 1, "in_dur": 161}, {"date": "2026-09-11", "ext": "AJHY317", "out": 2, "out_ans": 2, "out_dur": 18, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-11", "ext": "AJHY512", "out": 11, "out_ans": 11, "out_dur": 1536, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-11", "ext": "AJHY520", "out": 13, "out_ans": 13, "out_dur": 1212, "in": 2, "in_ans": 2, "in_dur": 121}, {"date": "2026-09-12", "ext": "AJHY318", "out": 1, "out_ans": 1, "out_dur": 4, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-14", "ext": "AJHY201", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 48}, {"date": "2026-09-14", "ext": "AJHY224", "out": 1, "out_ans": 1, "out_dur": 44, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-14", "ext": "AJHY301", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 70}, {"date": "2026-09-14", "ext": "AJHY304", "out": 1, "out_ans": 1, "out_dur": 141, "in": 5, "in_ans": 5, "in_dur": 372}, {"date": "2026-09-14", "ext": "AJHY305", "out": 2, "out_ans": 2, "out_dur": 1571, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-14", "ext": "AJHY318", "out": 1, "out_ans": 1, "out_dur": 55, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-14", "ext": "AJHY319", "out": 0, "out_ans": 0, "out_dur": 0, "in": 2, "in_ans": 2, "in_dur": 236}, {"date": "2026-09-14", "ext": "AJHY512", "out": 6, "out_ans": 6, "out_dur": 851, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-14", "ext": "AJHY516", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 52}, {"date": "2026-09-14", "ext": "AJHY520", "out": 10, "out_ans": 10, "out_dur": 1039, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-15", "ext": "AJHY201", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 29}, {"date": "2026-09-15", "ext": "AJHY223", "out": 9, "out_ans": 9, "out_dur": 629, "in": 1, "in_ans": 1, "in_dur": 215}, {"date": "2026-09-15", "ext": "AJHY224", "out": 3, "out_ans": 3, "out_dur": 250, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-15", "ext": "AJHY304", "out": 0, "out_ans": 0, "out_dur": 0, "in": 11, "in_ans": 11, "in_dur": 1328}, {"date": "2026-09-15", "ext": "AJHY319", "out": 1, "out_ans": 1, "out_dur": 41, "in": 1, "in_ans": 1, "in_dur": 235}, {"date": "2026-09-15", "ext": "AJHY511", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 108}, {"date": "2026-09-15", "ext": "AJHY512", "out": 5, "out_ans": 5, "out_dur": 538, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-16", "ext": "AJHY201", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 160}, {"date": "2026-09-16", "ext": "AJHY216", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 89}, {"date": "2026-09-16", "ext": "AJHY223", "out": 5, "out_ans": 5, "out_dur": 424, "in": 2, "in_ans": 2, "in_dur": 145}, {"date": "2026-09-16", "ext": "AJHY226", "out": 4, "out_ans": 4, "out_dur": 152, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-16", "ext": "AJHY304", "out": 2, "out_ans": 2, "out_dur": 552, "in": 4, "in_ans": 4, "in_dur": 263}, {"date": "2026-09-16", "ext": "AJHY305", "out": 2, "out_ans": 2, "out_dur": 224, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-16", "ext": "AJHY307", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 68}, {"date": "2026-09-16", "ext": "AJHY308", "out": 0, "out_ans": 0, "out_dur": 0, "in": 1, "in_ans": 1, "in_dur": 122}, {"date": "2026-09-16", "ext": "AJHY317", "out": 3, "out_ans": 3, "out_dur": 164, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-16", "ext": "AJHY512", "out": 8, "out_ans": 8, "out_dur": 854, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-17", "ext": "AJHY226", "out": 1, "out_ans": 1, "out_dur": 26, "in": 0, "in_ans": 0, "in_dur": 0}, {"date": "2026-09-17", "ext": "AJHY512", "out": 6, "out_ans": 6, "out_dur": 1103, "in": 0, "in_ans": 0, "in_dur": 0}];
-const EXT_NAMES = {};
+const EXT_NAMES = {"AJHY201": "Portia", "AJHY203": "Taher", "AJHY213": "Lily Zhang", "AJHY216": "Angel Z", "AJHY220": "Tyler", "AJHY223": "Groot", "AJHY224": "Maxine/Dara", "AJHY225": "Yolanda", "AJHY226": "Karim", "AJHY301": "Jack office", "AJHY302": "已停用", "AJHY303": "Xian", "AJHY304": "Susan", "AJHY305": "Winnie", "AJHY306": "Kyle/Kwan", "AJHY307": "Tom", "AJHY308": "Jonathan", "AJHY309": "已停用", "AJHY313": "Guandong Xu", "AJHY315": "Aria", "AJHY317": "Pamela/Grecia", "AJHY318": "Kevin", "AJHY319": "Gavin", "AJHY320": "Kimmy", "AJHY501": "Xinbei", "AJHY511": "Blu", "AJHY512": "Jasmine（蔡铖）", "AJHY513": "已停用", "AJHY516": "Ella", "AJHY518": "Helly（何元平）", "AJHY519": "已停用", "AJHY520": "Ran（陈虎明）", "AJHY523": "Liz"};
 
 function labelFor(ext) {
   const name = EXT_NAMES[ext];
@@ -182,6 +193,7 @@ function fmtDur(sec) {
 function fmtPct(n) { return isFinite(n) ? `${Math.round(n*100)}%` : '-'; }
 
 let currentRange = 30;
+let customRange = null; // {start, end} when the "自定义" range is active
 let searchTerm = '';
 
 function allDates() {
@@ -189,7 +201,11 @@ function allDates() {
 }
 function filteredByRange() {
   const dates = allDates();
-  if (currentRange === 'all' || dates.length === 0) return DAILY;
+  if (dates.length === 0) return DAILY;
+  if (customRange) {
+    return DAILY.filter(r => r.date >= customRange.start && r.date <= customRange.end);
+  }
+  if (currentRange === 'all') return DAILY;
   const cutoffIdx = Math.max(0, dates.length - currentRange);
   const cutoff = dates[cutoffIdx];
   return DAILY.filter(r => r.date >= cutoff);
@@ -380,13 +396,45 @@ function rerender() {
   renderTable(extRows);
 }
 
+const customPanel = document.getElementById('customRangePanel');
+const customStartInput = document.getElementById('customStart');
+const customEndInput = document.getElementById('customEnd');
+const dataDates = allDates();
+if (dataDates.length) {
+  customStartInput.min = dataDates[0];
+  customStartInput.max = dataDates[dataDates.length - 1];
+  customEndInput.min = dataDates[0];
+  customEndInput.max = dataDates[dataDates.length - 1];
+  if (!customStartInput.value) customStartInput.value = dataDates[Math.max(0, dataDates.length - 7)];
+  if (!customEndInput.value) customEndInput.value = dataDates[dataDates.length - 1];
+}
+
 document.getElementById('rangeGroup').addEventListener('click', (e) => {
   const btn = e.target.closest('.range-btn');
   if (!btn) return;
+  const r = btn.dataset.range;
+  if (r === 'custom') {
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    customPanel.hidden = false;
+    return; // wait for "应用"
+  }
+  customPanel.hidden = true;
+  customRange = null;
   document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const r = btn.dataset.range;
   currentRange = r === 'all' ? 'all' : parseInt(r, 10);
+  rerender();
+});
+
+document.getElementById('applyCustomRange').addEventListener('click', () => {
+  const start = customStartInput.value, end = customEndInput.value;
+  if (!start || !end || start > end) {
+    showTooltip({clientX: 0, clientY: 0}, '请选择有效的起止日期');
+    setTimeout(hideTooltip, 1500);
+    return;
+  }
+  customRange = { start, end };
   rerender();
 });
 
